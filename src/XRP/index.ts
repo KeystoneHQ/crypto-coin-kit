@@ -72,6 +72,11 @@ export class XRP implements Coin {
 
   private generateUnsignedTx = (txData: TxData, signingPubKey: string) => {
     const {amount, changeAddress, fee, sequence, tag, to} = txData;
+    if (tag) {
+      if (tag > 0xffffffff || tag < 0) {
+        throw new Error('invalid tag value');
+      }
+    }
     const partialTx = {
       Account: changeAddress,
       Amount: amount.toString(),
@@ -125,44 +130,44 @@ export class XRP implements Coin {
   };
 
   public generateTransactionFromJson = async (
-      txJson: any,
-      keyProvider: KeyProvider,
+    txJson: any,
+    keyProvider: KeyProvider,
   ): Promise<GenerateTransactionResult> => {
     const {unsignedTx, unsignedTxJson} = this.generateUnsignedTxFromJson(
-        txJson,
-        keyProvider.publicKey,
+      txJson,
+      keyProvider.publicKey,
     );
     const signature = await keyProvider.sign(unsignedTx);
     return this.getSignedTx(unsignedTxJson, signature);
   };
 
-  public generateTransactionFromJsonSync =  (
-      txJson: any,
-      keyProvider: KeyProviderSync,
+  public generateTransactionFromJsonSync = (
+    txJson: any,
+    keyProvider: KeyProviderSync,
   ): GenerateTransactionResult => {
     const {unsignedTx, unsignedTxJson} = this.generateUnsignedTxFromJson(
-        txJson,
-        keyProvider.publicKey,
+      txJson,
+      keyProvider.publicKey,
     );
     const signature = keyProvider.sign(unsignedTx);
     return this.getSignedTx(unsignedTxJson, signature);
   };
 
-  private generateUnsignedTxFromJson = (txJson: object, signingPubKey: string) => {
+  private generateUnsignedTxFromJson = (
+    txJson: object,
+    signingPubKey: string,
+  ) => {
     const txJsonForSigning = {
       ...txJson,
       SigningPubKey: signingPubKey.toUpperCase(),
     };
-    const txHex = Buffer.from(
-        binary.encodeForSigning(txJsonForSigning),
-        'hex',
-    );
+    const txHex = Buffer.from(binary.encodeForSigning(txJsonForSigning), 'hex');
     const unsignedTx = Buffer.from(
-        hashjs
-            .sha512()
-            .update(txHex)
-            .digest()
-            .slice(0, 32),
+      hashjs
+        .sha512()
+        .update(txHex)
+        .digest()
+        .slice(0, 32),
     ).toString('hex');
     return {
       unsignedTx,

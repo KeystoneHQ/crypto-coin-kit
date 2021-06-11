@@ -157,6 +157,12 @@ export class XRP implements Coin {
     txJson: object,
     signingPubKey: string,
   ) => {
+    const {DestinationTag} = txJson as any;
+    if (DestinationTag) {
+      if (DestinationTag > 0xffffffff || DestinationTag < 0) {
+        throw new Error('invalid destination tag value');
+      }
+    }
     const txJsonForSigning = {
       ...txJson,
       SigningPubKey: signingPubKey.toUpperCase(),

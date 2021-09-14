@@ -256,6 +256,7 @@ export class TRON implements Coin {
   private generateTRC20Transaction = (txData: TxData) => {
     const ownerAddress = bs58check.decode(txData.from).toString('hex');
     const contractAddress = bs58check
+      //@ts-ignore
       .decode(txData.contractAddress)
       .toString('hex');
     const data = this.composeTRC20Data(txData.to, txData.value);

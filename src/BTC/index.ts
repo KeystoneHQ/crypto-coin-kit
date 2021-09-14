@@ -267,7 +267,11 @@ export class BTC implements UtxoCoin {
     }
   }
 
-  public async generateTransaction(txData: TxData, signers: KeyProvider[], disableLargeFee = false) {
+  public async generateTransaction(
+    txData: TxData,
+    signers: KeyProvider[],
+    disableLargeFee = false,
+  ) {
     const psbtBuilder = new PsbtBuilder(this.network);
     const psbt = psbtBuilder
       .addInputsForPsbt(txData, disableLargeFee)
@@ -298,7 +302,11 @@ export class BTC implements UtxoCoin {
     return this.extractTx(psbt);
   };
 
-  public generateTransactionSync(txData: TxData, signers: KeyProviderSync[], disableLargeFee= false) {
+  public generateTransactionSync(
+    txData: TxData,
+    signers: KeyProviderSync[],
+    disableLargeFee = false,
+  ) {
     const psbtBuilder = new PsbtBuilder(this.network);
     const psbt = psbtBuilder
       .addInputsForPsbt(txData, disableLargeFee)
@@ -397,17 +405,17 @@ export class BTC implements UtxoCoin {
 
   public signMessage = async (message: string, signer: KeyProvider) => {
     const hashHex = this.constructMessageHash(message);
-    const {r, s} = await signer.sign(hashHex);
-    return `${r}${s}`;
+    const {r, s, recId} = await signer.sign(hashHex);
+    return `${(recId + 31).toString(16)}${r}${s}`;
   };
 
   public signMessageSync = (message: string, signerSync: KeyProviderSync) => {
     const hashHex = this.constructMessageHash(message);
-    const {r, s} = signerSync.sign(hashHex);
-    return `${r}${s}`;
+    const {r, s, recId} = signerSync.sign(hashHex);
+    return `${(recId + 31).toString(16)}${r}${s}`;
   };
 
-  public generatePsbt = (txData: TxData, disableLargeFee= false): string => {
+  public generatePsbt = (txData: TxData, disableLargeFee = false): string => {
     const psbtBuilder = new PsbtBuilder(this.network);
     const psbt = psbtBuilder
       .addInputsForPsbt(txData, disableLargeFee)

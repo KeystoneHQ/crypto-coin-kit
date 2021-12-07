@@ -9,6 +9,7 @@ import {UtxoCoin} from '../Common/coin';
 import {KeyProvider, KeyProviderSync} from '../Common/sign';
 import {hash256, numberToHex} from '../utils';
 import PsbtBuilder from './txBuilder';
+import {Transaction, TransactionBuilder} from 'bitcoinjs-lib';
 
 export enum AddressType {
   P2PKH = 'P2PKH',
@@ -72,6 +73,7 @@ export interface Destination {
 export interface TxData {
   inputs: TxInputItem[];
   outputs: TxOutputItem[] | Destination;
+  scriptType?: AddressType;
   version?: number;
   locktime?: number;
 }
@@ -272,6 +274,9 @@ export class BTC implements UtxoCoin {
     signers: KeyProvider[],
     disableLargeFee = false,
   ) {
+    if(!txData.scriptType) {
+      txData.scriptType = AddressType.P2SH;
+    }
     const psbtBuilder = new PsbtBuilder(this.network);
     const psbt = psbtBuilder
       .addInputsForPsbt(txData, disableLargeFee)
@@ -288,51 +293,72 @@ export class BTC implements UtxoCoin {
     await this.signAllInputsAsync(signers, psbt);
     return this.extractTx(psbt);
   }
-
-  public generateOmniTransaction = async (
-    omniTxData: OmniTxData,
-    signers: KeyProvider[],
-  ) => {
-    const psbtBuilder = new PsbtBuilder(this.network);
-    const psbt = psbtBuilder
-      .addOmniInputsForPsbt(omniTxData)
-      .addOmniOutputsForPsbt(omniTxData)
-      .getPsbt();
-    await this.signAllInputsAsync(signers, psbt);
-    return this.extractTx(psbt);
-  };
 
   public generateTransactionSync(
     txData: TxData,
     signers: KeyProviderSync[],
     disableLargeFee = false,
   ) {
-    const psbtBuilder = new PsbtBuilder(this.network);
-    const psbt = psbtBuilder
-      .addInputsForPsbt(txData, disableLargeFee)
-      .addOutputForPsbt(txData)
-      .getPsbt();
-    if (txData.locktime) {
-      psbt.setLocktime(txData.locktime);
+    const {scriptType} = txData;
+    if(scriptType === AddressType.P2PKH) {
+      const uniqueSigners = this.filterUniqueSigner(signers);
+      const tb = new TransactionBuilder(this.network);
+      txData.inputs.forEach(input => {
+        tb.addInput(input.hash, input.index);
+      });
+      (txData.outputs as TxOutputItem[]).forEach(output => {
+        tb.addOutput(output.address, output.value);
+      })
+      txData.inputs.forEach((input, index) => {
+        const signer = uniqueSigners.find(signer => signer.publicKey === (input.utxo as WitnessUtxo).publicKey) as KeyProviderSync;
+        const keyPair = {
+          publicKey: Buffer.from(signer.publicKey, 'hex'),
+          sign: (hashBuffer: Buffer) => {
+            const hexString = hashBuffer.toString('hex');
+            const {r, s} = signer.sign(hexString);
+            return Buffer.concat([Buffer.from(r, 'hex'), Buffer.from(s, 'hex')]);
+          },
+        };
+
+        tb.sign({prevOutScriptType: "p2pkh", keyPair, vin: index});
+      })
+      const transaction = tb.build();
+      const txHex = transaction.toHex()
+      const txId = transaction.getId();
+      return {
+        txId,
+        txHex,
+      }
     }
-    if (txData.version) {
-      psbt.setVersion(txData.version);
+    else {
+      const psbtBuilder = new PsbtBuilder(this.network);
+      const psbt = psbtBuilder
+          .addInputsForPsbt(txData, disableLargeFee)
+          .addOutputForPsbt(txData)
+          .getPsbt();
+      if (txData.locktime) {
+        psbt.setLocktime(txData.locktime);
+      }
+      if (txData.version) {
+        psbt.setVersion(txData.version);
+      }
+      this.signAllInputsSync(signers, psbt);
+      return this.extractTx(psbt);
     }
-    this.signAllInputsSync(signers, psbt);
-    return this.extractTx(psbt);
   }
 
   public generateOmniTransactionSync = (
     omniTxData: OmniTxData,
     signers: KeyProviderSync[],
   ) => {
-    const psbtBuilder = new PsbtBuilder(this.network);
-    const psbt = psbtBuilder
-      .addOmniInputsForPsbt(omniTxData)
-      .addOmniOutputsForPsbt(omniTxData)
-      .getPsbt();
-    this.signAllInputsSync(signers, psbt);
-    return this.extractTx(psbt);
+      throw new Error("method is deprecated");
+    // const psbtBuilder = new PsbtBuilder(this.network);
+    // const psbt = psbtBuilder
+    //   .addOmniInputsForPsbt(omniTxData)
+    //   .addOmniOutputsForPsbt(omniTxData)
+    //   .getPsbt();
+    // this.signAllInputsSync(signers, psbt);
+    // return this.extractTx(psbt);
   };
 
   public async generateMultiSignTransaction(

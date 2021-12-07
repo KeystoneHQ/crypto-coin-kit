@@ -1,8 +1,9 @@
-import {crypto} from 'bitcoinjs-lib';
 import * as bitcoin from 'bitcoinjs-lib';
+import {crypto} from 'bitcoinjs-lib';
 // @ts-ignore
 import padstart from 'lodash.padstart';
 import {
+  AddressType,
   Destination,
   MultiSignOmniTxData,
   MultiSignTxData,
@@ -32,7 +33,7 @@ export default class PsbtBuilder {
   public addInputsForPsbt = (txData: TxData, disableLargeFee = false) => {
     if (this.verifyInput(txData, disableLargeFee)) {
       txData.inputs.forEach(eachInput => {
-        return this.addInputForPsbt(eachInput);
+        return this.addInputForPsbt(eachInput, txData.scriptType!);
       });
       return this;
     }
@@ -40,14 +41,15 @@ export default class PsbtBuilder {
   };
 
   public addOmniInputsForPsbt = (omniTxData: OmniTxData) => {
-    if (this.verifyOmniInput(omniTxData)) {
-      omniTxData.inputs.forEach(eachInput => {
-        return this.addInputForPsbt(eachInput);
-      });
-      return this;
-    } else {
-      throw new Error('input value are invaild');
-    }
+    throw new Error("method is deprecated");
+    // if (this.verifyOmniInput(omniTxData)) {
+    //   omniTxData.inputs.forEach(eachInput => {
+    //     return this.addInputForPsbt(eachInput);
+    //   });
+    //   return this;
+    // } else {
+    //   throw new Error('input value are invaild');
+    // }
   };
 
   public addMultiSignInputsForPsbt = (txData: MultiSignTxData) => {
@@ -202,7 +204,7 @@ export default class PsbtBuilder {
     return totalInputs;
   };
 
-  private addInputForPsbt(eachInput: TxInputItem) {
+  private addInputForPsbt(eachInput: TxInputItem, scriptType: AddressType) {
     const sequence = eachInput.sequence || 0xfffffffd
     if (this.isNonWitnessUtxo(eachInput.utxo)) {
       return this.psbt.addInput({
@@ -213,24 +215,41 @@ export default class PsbtBuilder {
         bip32Derivation: eachInput.bip32Derivation,
       });
     } else {
-      return this.psbt.addInput({
-        hash: eachInput.hash,
-        index: eachInput.index,
-        sequence: sequence,
-        witnessUtxo: {
-          script: Buffer.from(
-            eachInput.utxo.script ||
-              this.calculateScript(eachInput.utxo.publicKey).toString('hex'),
-            'hex',
-          ),
-          value: eachInput.utxo.value,
-        },
-        redeemScript: bitcoin.payments.p2wpkh({
-          pubkey: Buffer.from(eachInput.utxo.publicKey, 'hex'),
-          network: this.network,
-        }).output,
-        bip32Derivation: eachInput.bip32Derivation,
-      });
+      if(scriptType === AddressType.P2SH) {
+        return this.psbt.addInput({
+          hash: eachInput.hash,
+          index: eachInput.index,
+          sequence: sequence,
+          witnessUtxo: {
+            script: Buffer.from(
+                eachInput.utxo.script ||
+                this.calculateScript(eachInput.utxo.publicKey).toString('hex'),
+                'hex',
+            ),
+            value: eachInput.utxo.value,
+          },
+          redeemScript: bitcoin.payments.p2wpkh({
+            pubkey: Buffer.from(eachInput.utxo.publicKey, 'hex'),
+            network: this.network,
+          }).output,
+          bip32Derivation: eachInput.bip32Derivation,
+        });
+      }
+      else {
+        return this.psbt.addInput({
+          hash: eachInput.hash,
+          index: eachInput.index,
+          sequence: sequence,
+          witnessUtxo: {
+            script: bitcoin.payments.p2wpkh({
+              pubkey: Buffer.from(eachInput.utxo.publicKey, 'hex'),
+              network: this.network,
+            }).output as Buffer,
+            value: eachInput.utxo.value,
+          },
+          bip32Derivation: eachInput.bip32Derivation,
+        });
+      }
     }
   }
 

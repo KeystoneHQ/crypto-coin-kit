@@ -11,9 +11,9 @@ export default (privateKey: string, publicKey: string) => {
       try {
         const input = Buffer.from(hex, 'hex');
         const privKey = Buffer.from(privateKey, 'hex');
-        const sigObj = secp256k1.sign(input, privKey);
-        const r = sigObj.signature.slice(0, 32).toString('hex');
-        const s = sigObj.signature.slice(32, 64).toString('hex');
+        const sigObj = secp256k1.ecdsaSign(input, privKey);
+        const r = Buffer.from(sigObj.signature.slice(0, 32)).toString('hex');
+        const s = Buffer.from(sigObj.signature.slice(32, 64)).toString('hex');
         return {
           r,
           s,
@@ -37,9 +37,9 @@ export const SignProviderWithPrivateKeySync = (
       try {
         const input = Buffer.from(hex, 'hex');
         const privKey = Buffer.from(privateKey, 'hex');
-        const sigObj = secp256k1.sign(input, privKey);
-        const r = sigObj.signature.slice(0, 32).toString('hex');
-        const s = sigObj.signature.slice(32, 64).toString('hex');
+        const sigObj = secp256k1.ecdsaSign(input, privKey);
+        const r = Buffer.from(sigObj.signature.slice(0, 32)).toString('hex');
+        const s = Buffer.from(sigObj.signature.slice(32, 64)).toString('hex');
         return {
           r,
           s,

@@ -277,21 +277,25 @@ export class BTC implements UtxoCoin {
     if(!txData.scriptType) {
       txData.scriptType = AddressType.P2SH;
     }
-    const psbtBuilder = new PsbtBuilder(this.network);
-    const psbt = psbtBuilder
-      .addInputsForPsbt(txData, disableLargeFee)
-      .addOutputForPsbt(txData)
-      .getPsbt();
-
-    if (txData.locktime) {
-      psbt.setLocktime(txData.locktime);
+    const {scriptType} = txData;
+    if(scriptType === AddressType.P2PKH) {
+      throw new Error('asynchronous p2pkh signing is not supported currently');
     }
-
-    if (txData.version) {
-      psbt.setVersion(txData.version);
+    else {
+      const psbtBuilder = new PsbtBuilder(this.network);
+      const psbt = psbtBuilder
+          .addInputsForPsbt(txData, disableLargeFee)
+          .addOutputForPsbt(txData)
+          .getPsbt();
+      if (txData.locktime) {
+        psbt.setLocktime(txData.locktime);
+      }
+      if (txData.version) {
+        psbt.setVersion(txData.version);
+      }
+      this.signAllInputsAsync(signers, psbt);
+      return this.extractTx(psbt);
     }
-    await this.signAllInputsAsync(signers, psbt);
-    return this.extractTx(psbt);
   }
 
   public generateTransactionSync(
@@ -299,6 +303,9 @@ export class BTC implements UtxoCoin {
     signers: KeyProviderSync[],
     disableLargeFee = false,
   ) {
+    if(!txData.scriptType) {
+      txData.scriptType = AddressType.P2SH;
+    }
     const {scriptType} = txData;
     if(scriptType === AddressType.P2PKH) {
       const uniqueSigners = this.filterUniqueSigner(signers);

@@ -9,13 +9,14 @@ export const SignProviderWithPrivateKey = (privateKey: string) => {
       try {
         const input = Buffer.from(hex, 'hex');
         const privKey = Buffer.from(privateKey, 'hex');
-        const sigObj = secp256k1.sign(input, privKey);
-        const r = sigObj.signature.slice(0, 32).toString('hex');
-        const s = sigObj.signature.slice(32, 64).toString('hex');
+        const sigObj = secp256k1.ecdsaSign(input, privKey);
+        const r = Buffer.from(sigObj.signature.slice(0, 32)).toString('hex');
+        const s = Buffer.from(sigObj.signature.slice(32, 64)).toString('hex');
+        const recId = sigObj.recid || 0;
         return {
           r,
           s,
-          recId: sigObj.recoveryParam || 0,
+          recId
         };
       } catch (e) {
         console.log(e);
@@ -31,13 +32,14 @@ export const SignProviderWithPrivateKeySync = (privateKey: string) => {
       try {
         const input = Buffer.from(hex, 'hex');
         const privKey = Buffer.from(privateKey, 'hex');
-        const sigObj = secp256k1.sign(input, privKey);
-        const r = sigObj.signature.slice(0, 32).toString('hex');
-        const s = sigObj.signature.slice(32, 64).toString('hex');
+        const sigObj = secp256k1.ecdsaSign(input, privKey);
+        const r = Buffer.from(sigObj.signature.slice(0, 32)).toString('hex');
+        const s = Buffer.from(sigObj.signature.slice(32, 64)).toString('hex');
+        const recId = sigObj.recid || 0;
         return {
           r,
           s,
-          recId: sigObj.recoveryParam || 0,
+          recId
         };
       } catch (e) {
         console.log(e);

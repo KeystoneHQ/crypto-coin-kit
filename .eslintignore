@@ -15,8 +15,6 @@ babel.config.js
 
 webpack.config.js
 
-webpack.config.eos.js
-
 webpack.config.dot.js
 
 .eslintrc.js

@@ -9,18 +9,12 @@ const WebpackGitHash = require('webpack-git-hash');
 module.exports = {
   entry: {
     BTC: './src/BTC/index.ts',
-    DCR: './src/DCR/index.ts',
-    ETC: './src/ETC/index.ts',
     ETH: './src/ETH/index.ts',
     XRP: './src/XRP/index.ts',
-    XZC: './src/XZC/index.ts',
     BCH: './src/BCH/index.ts',
     DASH: './src/DASH/index.ts',
     LTC: './src/LTC/index.ts',
-    IOST: './src/IOST/index.ts',
     TRON: './src/TRON/index.ts',
-    TCFX: './src/TCFX/index.ts',
-    CFX: './src/CFX/index.ts',
     utils: './src/utils/index.ts',
   },
   mode: 'production',

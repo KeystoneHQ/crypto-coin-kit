@@ -215,7 +215,22 @@ export default class PsbtBuilder {
         bip32Derivation: eachInput.bip32Derivation,
       });
     } else {
-      if(scriptType === AddressType.P2SH) {
+      if(scriptType === AddressType.P2WPKH) {
+        return this.psbt.addInput({
+          hash: eachInput.hash,
+          index: eachInput.index,
+          sequence: sequence,
+          witnessUtxo: {
+            script: bitcoin.payments.p2wpkh({
+              pubkey: Buffer.from(eachInput.utxo.publicKey, 'hex'),
+              network: this.network,
+            }).output as Buffer,
+            value: eachInput.utxo.value,
+          },
+          bip32Derivation: eachInput.bip32Derivation,
+        });
+      }
+      else {
         return this.psbt.addInput({
           hash: eachInput.hash,
           index: eachInput.index,
@@ -234,21 +249,7 @@ export default class PsbtBuilder {
           }).output,
           bip32Derivation: eachInput.bip32Derivation,
         });
-      }
-      else {
-        return this.psbt.addInput({
-          hash: eachInput.hash,
-          index: eachInput.index,
-          sequence: sequence,
-          witnessUtxo: {
-            script: bitcoin.payments.p2wpkh({
-              pubkey: Buffer.from(eachInput.utxo.publicKey, 'hex'),
-              network: this.network,
-            }).output as Buffer,
-            value: eachInput.utxo.value,
-          },
-          bip32Derivation: eachInput.bip32Derivation,
-        });
+
       }
     }
   }

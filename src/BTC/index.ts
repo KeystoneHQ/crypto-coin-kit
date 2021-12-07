@@ -293,7 +293,7 @@ export class BTC implements UtxoCoin {
       if (txData.version) {
         psbt.setVersion(txData.version);
       }
-      this.signAllInputsAsync(signers, psbt);
+      await this.signAllInputsAsync(signers, psbt);
       return this.extractTx(psbt);
     }
   }
@@ -449,6 +449,9 @@ export class BTC implements UtxoCoin {
   };
 
   public generatePsbt = (txData: TxData, disableLargeFee = false): string => {
+    if(!txData.scriptType) {
+      txData.scriptType = AddressType.P2SH;
+    }
     const psbtBuilder = new PsbtBuilder(this.network);
     const psbt = psbtBuilder
       .addInputsForPsbt(txData, disableLargeFee)

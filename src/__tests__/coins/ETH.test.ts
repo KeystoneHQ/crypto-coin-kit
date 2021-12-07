@@ -145,7 +145,7 @@ describe('coin.ETH', () => {
       SignProviderWithPrivateKeySync(privkey),
     );
     expect(signedMessage).toBe(
-      '0xae35d9375b015664a7b115a63a4515142b68059b164dd187e0b5232d47ca69685104d05d1c6c58b1fe5842f28459e2ea5bd571c0196f10da25fd2140eeef47e500',
+      '0xae35d9375b015664a7b115a63a4515142b68059b164dd187e0b5232d47ca69685104d05d1c6c58b1fe5842f28459e2ea5bd571c0196f10da25fd2140eeef47e501',
     );
   });
 
@@ -158,7 +158,7 @@ describe('coin.ETH', () => {
       SignProviderWithPrivateKey(privkey),
     );
     expect(signedMessage).toBe(
-      '0xae35d9375b015664a7b115a63a4515142b68059b164dd187e0b5232d47ca69685104d05d1c6c58b1fe5842f28459e2ea5bd571c0196f10da25fd2140eeef47e500',
+      '0xae35d9375b015664a7b115a63a4515142b68059b164dd187e0b5232d47ca69685104d05d1c6c58b1fe5842f28459e2ea5bd571c0196f10da25fd2140eeef47e501',
     );
   });
 });

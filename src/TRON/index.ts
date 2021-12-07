@@ -63,7 +63,7 @@ export interface VoteData {
 
 export class TRON implements Coin {
   public generateAddress = (publicKey: string) => {
-    let pubBytes = Buffer.from(publicKey, 'hex');
+    let pubBytes = new Uint8Array(Buffer.from(publicKey, 'hex'));
     pubBytes = Buffer.from(secp256k1.publicKeyConvert(pubBytes, false)).slice(1);
     const hash = sha3.keccak_256(pubBytes).toString();
     const addressHex = hash.substring(24);

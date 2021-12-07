@@ -2,7 +2,6 @@ import {BCH} from './BCH';
 import {BTC} from './BTC';
 import {DASH} from './DASH';
 import {ETH} from './ETH';
-import KeyProvider from './keyProvider';
 import {LTC} from './LTC';
 import {TRON} from './TRON';
 import * as utils from './utils';
@@ -20,6 +19,5 @@ export default {
     TRON,
     DOT,
   },
-  KeyProvider,
   utils,
 };

@@ -67,13 +67,13 @@ describe('coin.DASH', () => {
   it('should signMessage', () => {
     const message = dash.signMessageSync('hello', kpSync);
     expect(message).toEqual(
-      '235a55f3cfd863aea9cf105a577a3543e20ec3359a5f752a305de97bea7d35ee3e3650a46ec6bf210e1e5d874a875f7f6ca5df2488373167f7c9847eaa7f28ca',
+      '1f235a55f3cfd863aea9cf105a577a3543e20ec3359a5f752a305de97bea7d35ee3e3650a46ec6bf210e1e5d874a875f7f6ca5df2488373167f7c9847eaa7f28ca',
     );
   });
   it('should signMessage sync', async () => {
     const message = await dash.signMessage('hello', kp);
     expect(message).toEqual(
-      '235a55f3cfd863aea9cf105a577a3543e20ec3359a5f752a305de97bea7d35ee3e3650a46ec6bf210e1e5d874a875f7f6ca5df2488373167f7c9847eaa7f28ca',
+      '1f235a55f3cfd863aea9cf105a577a3543e20ec3359a5f752a305de97bea7d35ee3e3650a46ec6bf210e1e5d874a875f7f6ca5df2488373167f7c9847eaa7f28ca',
     );
   });
 });

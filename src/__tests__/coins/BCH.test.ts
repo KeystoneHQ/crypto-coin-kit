@@ -143,13 +143,13 @@ describe('coin.BCH', () => {
   it('should signMessage', () => {
     const message = bch.signMessageSync('hello', kpSync);
     expect(message).toEqual(
-      'f1878d7e14434a1514566f184a64deb9534f6491a8bbf72d921ec02834714fce56127cf12942fe5e4b44cfac68003d846095b8fd112c4a6b99d60b8fd70bbfa3',
+      '1ff1878d7e14434a1514566f184a64deb9534f6491a8bbf72d921ec02834714fce56127cf12942fe5e4b44cfac68003d846095b8fd112c4a6b99d60b8fd70bbfa3',
     );
   });
   it('should signMessage sync', async () => {
     const message = await bch.signMessage('hello', kp);
     expect(message).toEqual(
-      'f1878d7e14434a1514566f184a64deb9534f6491a8bbf72d921ec02834714fce56127cf12942fe5e4b44cfac68003d846095b8fd112c4a6b99d60b8fd70bbfa3',
+      '1ff1878d7e14434a1514566f184a64deb9534f6491a8bbf72d921ec02834714fce56127cf12942fe5e4b44cfac68003d846095b8fd112c4a6b99d60b8fd70bbfa3',
     );
   });
 });

@@ -25,5 +25,5 @@ export const fromSignResultToDER = (result: Result): string => {
   const r = Buffer.from(result.r, 'hex');
   const s = Buffer.from(result.s, 'hex');
   const signature = Buffer.concat([r, s]);
-  return Buffer.from(seck256k1.signatureExport(signature)).toString('hex');
+  return Buffer.from(seck256k1.signatureExport(new Uint8Array(signature))).toString('hex');
 };

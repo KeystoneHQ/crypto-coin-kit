@@ -1,6 +1,7 @@
 import * as bitcoin from 'bitcoinjs-lib';
 // @ts-ignore
 import bs58check from 'bs58check';
+import {decode as bech32Decode} from 'bech32';
 import {cloneDeep} from 'lodash';
 import {BTC, Destination, TxData, TxOutputItem} from '../BTC';
 import {bitcoin as bitcoinNetwork, litecoin} from '../BTC_FORK/networks';
@@ -21,10 +22,25 @@ export class LTC extends BTC {
   }
 
   public isAddressValid(address: string): boolean {
-    try {
-      bs58check.decode(address);
-      return true;
-    } catch (e) {
+    if (
+      address.startsWith('L') ||
+      address.startsWith('3') ||
+      address.startsWith('M')
+    ) {
+      try {
+        bs58check.decode(address);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    } else if (address.startsWith('ltc')) {
+      try {
+        bech32Decode(address);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    } else {
       return false;
     }
   }

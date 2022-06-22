@@ -34,11 +34,31 @@ describe('coin.LTC', () => {
     );
   });
 
-  it('should valid a address', () => {
-    const result = ltc.isAddressValid('MM9gKGzN2n2V9a4pcJY2JRGjhUQCcciCED');
-    expect(result).toBe(true);
-    const failResult = ltc.isAddressValid('3EwY1PaQ5fB4M4nvWRYgUn2LNmokeJ36Pj');
-    expect(failResult).toBe(true);
+  describe('isAddressValid', function () {
+    it('should return true given a valid p2pkh address', function () {
+      const validP2pkhAddress = 'LLfeanwXA7LhR92Sst46uBYn94qsR2rJ2h'
+      expect(ltc.isAddressValid(validP2pkhAddress)).toBe(true);
+    });
+
+    it('should return true given a valid legacy p2sh address', function () {
+      const validLegacyP2shAddress = '3EwY1PaQ5fB4M4nvWRYgUn2LNmokeJ36Pj'
+      expect(ltc.isAddressValid(validLegacyP2shAddress)).toBe(true);
+    });
+
+    it('should return true given a valid p2sh address', function () {
+      const validP2shAddress = 'MM9gKGzN2n2V9a4pcJY2JRGjhUQCcciCED'
+      expect(ltc.isAddressValid(validP2shAddress)).toBe(true);
+    });
+
+    it('should return true given a valid native segwit address', function () {
+      const validNativeSegwitAddress = 'ltc1q3qkpj5s4ru3cx9t7dt27pdfmz5aqy3wplamkns';
+      expect(ltc.isAddressValid(validNativeSegwitAddress)).toBe(true);
+    });
+
+    it('should return false given an invalid native segwit address', function () {
+      const invalidNativeSegwitAddress = 'ltc1q3qkpj5s4ru3cx9t7dt27pdfmz5aqy3wplamkn';
+      expect(ltc.isAddressValid(invalidNativeSegwitAddress)).toBe(false);
+    });
   });
 
   it('should convert a address', () => {

@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.11.2",
+    "@metamask/eth-sig-util": "^4.0.1",
     "@polkadot/api": "^3.10.1",
     "@polkadot/metadata": "^3.10.1",
     "@polkadot/types": "^3.10.1",

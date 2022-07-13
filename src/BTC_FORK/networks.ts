@@ -94,7 +94,7 @@ export const bitcoingold: Network = {
 export const litecoin: Network = {
   coin: 'litecoin',
   messagePrefix: '\x19Litecoin Signed Message:\n',
-  bech32: '',
+  bech32: 'ltc',
   bip32: {
     public: 0x019da462,
     private: 0x019d9cfe,

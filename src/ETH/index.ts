@@ -13,7 +13,7 @@ import abi from 'human-standard-token-abi';
 import {Buffer} from 'safe-buffer';
 // @ts-ignore
 import Web3 from 'web3';
-import { TypedDataUtils, SignTypedDataVersion } from '@metamask/eth-sig-util'
+import { TypedDataUtils, SignTypedDataVersion, typedSignatureHash, TypedDataV1} from '@metamask/eth-sig-util'
 
 import {Coin, GenerateTransactionResult} from '../Common/coin';
 import {Result, SignProvider, SignProviderSync} from '../Common/sign';
@@ -100,7 +100,24 @@ export class ETH implements Coin {
     }
   };
 
-  public eip712Hash = (message: string, version: SignTypedDataVersion.V3 | SignTypedDataVersion.V4 = SignTypedDataVersion.V4): string => {
+
+  public typedDataHash = (message: string): string => {
+    if (message.startsWith('[')) {
+      return this.generateV1Hash(JSON.parse(message));
+    } else {
+      return this.eip712Hash(message);
+    }
+  }
+
+  private generateV1Hash = (message: TypedDataV1): string => {
+    try {
+      return typedSignatureHash(message);
+    } catch (e) {
+      return ''
+    }
+  }
+
+  private eip712Hash = (message: string, version: SignTypedDataVersion.V3 | SignTypedDataVersion.V4 = SignTypedDataVersion.V4): string => {
     try {
       const typedData = JSON.parse(message);
       const hashedMessage = TypedDataUtils.eip712Hash(typedData, version);

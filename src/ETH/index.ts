@@ -13,7 +13,7 @@ import abi from 'human-standard-token-abi';
 import {Buffer} from 'safe-buffer';
 // @ts-ignore
 import Web3 from 'web3';
-import { TypedDataUtils, SignTypedDataVersion, typedSignatureHash, TypedDataV1} from '@metamask/eth-sig-util'
+import {SignTypedDataVersion, TypedDataUtils, TypedDataV1, typedSignatureHash} from '@metamask/eth-sig-util'
 
 import {Coin, GenerateTransactionResult} from '../Common/coin';
 import {Result, SignProvider, SignProviderSync} from '../Common/sign';
@@ -105,7 +105,11 @@ export class ETH implements Coin {
     if (message.startsWith('[')) {
       return this.generateV1Hash(JSON.parse(message));
     } else {
-      return this.eip712Hash(message);
+      let result = this.eip712Hash(message);
+      if (result.length === 0) {
+        result = this.eip712Hash(message, SignTypedDataVersion.V3);
+      }
+      return result;
     }
   }
 
